@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ServisKu - Pengingat Servis & Booking Bengkel Otomatis</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+         :root {
+            --primary-color: #ff5722;
+            --dark-color: #1e293b;
+            --bg-light: #f8fafc;
+        }
+        
+        body {
+            background-color: var(--bg-light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #334155;
+        }
+        
+        .navbar {
+            background-color: var(--dark-color);
+        }
+        
+        .navbar-brand span {
+            color: var(--primary-color);
+        }
+        
+        .btn-primary-custom {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .btn-primary-custom:hover {
+            background-color: #e64a19;
+            border-color: #e64a19;
+            color: white;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .hero-banner {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 2rem;
+        }
+        
+        .status-badge {
+            font-size: 0.85rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-4" href="#">
+                <i class="bi bi-wrench-adjustable-circle-fill me-2 text-warning"></i>Servis<span>Ku</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="#dashboard">Dashboard Motor</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#booking">Booking Bengkel</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#riwayat">Riwayat & Biaya</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        <!-- Hero Banner -->
+        <div class="hero-banner mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <span class="badge bg-warning text-dark mb-2">Smart Motorcycle Maintenance</span>
+                    <h2 class="fw-bold">Jangan Tunggu Mesin Rusak Baru ke Bengkel!</h2>
+                    <p class="mb-0 text-light opacity-75">Pantau kilometer otomatis, dapat pengingat ganti oli tepat waktu, dan booking bengkel terdekat tanpa antre.</p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <button class="btn btn-primary-custom btn-lg" data-bs-toggle="modal" data-bs-target="#modalUpdateKm">
+                        <i class="bi bi-speedometer2 me-2"></i>Update KM Sekarang
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Status Motor -->
+        <section id="dashboard" class="mb-5">
+            <div class="row g-4">
+                <!-- Profil Motor -->
+                <div class="col-lg-4">
+                    <div class="card h-100 p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="fw-bold mb-1" id="displayNamaMotor">Honda Vario 160</h5>
+                                <small class="text-muted" id="displayPlat">H 4321 XY • Tahun 2023</small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalEditMotor" title="Edit Profil Motor">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                        </div>
+                        <div class="bg-light p-3 rounded-3 text-center my-2 position-relative">
+                            <small class="text-muted d-block">Odometer Saat Ini</small>
+                            <h2 class="fw-bold text-dark mb-1"><span id="displayKmSaatIni">12.450</span> <small class="fs-6 text-muted">KM</small></h2>
+                            <button class="btn btn-sm btn-outline-danger mt-1" onclick="resetOdometerNol()">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i>Reset KM ke 0
+                            </button>
+                        </div>
+                        <div class="mt-3">
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span>Ganti Oli Terakhir:</span>
+                                <strong id="displayKmTerakhir">10.500 KM</strong>
+                            </div>
+                            <div class="d-flex justify-content-between small">
+                                <span>Target Ganti Oli Berikutnya:</span>
+                                <strong class="text-danger" id="displayTargetOli">12.500 KM</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Indikator Kesehatan & Pengingat Otomatis -->
+                <div class="col-lg-8">
+                    <div class="card h-100 p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold mb-0"><i class="bi bi-bell-fill text-warning me-2"></i>Status Pengingat Perawatan Otomatis</h5>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="resetSemuaPengingat()">
+                                <i class="bi bi-arrow-repeat me-1"></i>Reset Semua Interval
+                            </button>
+                        </div>
+
+                        <!-- Item 1: Oli Mesin -->
+                        <div class="mb-4 p-3 border rounded-3 bg-white">
+                            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                                <div>
+                                    <strong>1. Ganti Oli Mesin (Interval 2.000 KM)</strong>
+                                    <p class="small text-muted mb-0" id="textSisaOli">Sisa jarak tempuh: 50 KM lagi</p>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span id="badgeOli" class="badge bg-warning text-dark status-badge">Segera Ganti</span>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="resetIntervalOli()" title="Klik jika baru saja ganti oli">
+                                        <i class="bi bi-arrow-counterclockwise"></i> Reset Oli
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div id="progressOli" class="progress-bar bg-warning" role="progressbar" style="width: 97%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Item 2: Servis CVT / Tune Up -->
+                        <div class="mb-3 p-3 border rounded-3 bg-white">
+                            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                                <div>
+                                    <strong>2. Servis Rutin & Cek CVT / Rantai (Interval 4.000 KM)</strong>
+                                    <p class="small text-muted mb-0" id="textSisaServis">Sisa jarak tempuh: 2.050 KM lagi</p>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span id="badgeServis" class="badge bg-success status-badge">Kondisi Aman</span>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="resetIntervalServis()" title="Klik jika baru saja servis rutin">
+                                        <i class="bi bi-arrow-counterclockwise"></i> Reset Servis
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div id="progressServis" class="progress-bar bg-success" role="progressbar" style="width: 48%;"></div>
+                            </div>
+                        </div>
+
+                        <div id="alertRekomendasi" class="alert alert-warning mt-2 mb-0 d-flex align-items-center" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+                            <div>
+                                <strong>Rekomendasi Sistem:</strong> Jarak tempuh motor Anda sudah mendekati batas ganti oli. Segera booking bengkel agar performa mesin tetap terjaga!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Booking Bengkel Rekanan -->
+        <section id="booking" class="mb-5">
+            <h4 class="fw-bold mb-3">Booking Bengkel Rekanan Terdekat</h4>
+            <div class="row g-4">
+                <!-- Bengkel 1 -->
+                <div class="col-md-4">
+                    <div class="card p-3 h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-success">Buka • 08.00 - 17.00</span>
+                            <small class="text-warning fw-bold"><i class="bi bi-star-fill"></i> 4.9</small>
+                        </div>
+                        <h5 class="fw-bold">Bengkel Maju Jaya Motor</h5>
+                        <p class="small text-muted mb-2"><i class="bi bi-geo-alt-fill text-danger"></i> Jl. Imam Bonjol No. 45, Semarang (1.2 KM)</p>
+                        <p class="small mb-3">Spesialis Matic & Bebek • Estimasi Ganti Oli + Tune Up: <strong>Rp 85.000</strong></p>
+                        <button class="btn btn-primary-custom w-100 mt-auto" onclick="pilihBengkel('Bengkel Maju Jaya Motor')">
+                            Booking Jadwal
+                        </button>
+                    </div>
+                </div>
+                <!-- Bengkel 2 -->
+                <div class="col-md-4">
+                    <div class="card p-3 h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-success">Buka • 08.30 - 20.00</span>
+                            <small class="text-warning fw-bold"><i class="bi bi-star-fill"></i> 4.8</small>
+                        </div>
+                        <h5 class="fw-bold">Garage 24 Express Service</h5>
+                        <p class="small text-muted mb-2"><i class="bi bi-geo-alt-fill text-danger"></i> Jl. Pandanaran No. 12, Semarang (2.5 KM)</p>
+                        <p class="small mb-3">Ganti Oli Cepat (15 Menit) • Estimasi Oli Full Synthetic: <strong>Rp 65.000</strong></p>
+                        <button class="btn btn-primary-custom w-100 mt-auto" onclick="pilihBengkel('Garage 24 Express Service')">
+                            Booking Jadwal
+                        </button>
+                    </div>
+                </div>
+                <!-- Bengkel 3 -->
+                <div class="col-md-4">
+                    <div class="card p-3 h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-success">Buka • 09.00 - 18.00</span>
+                            <small class="text-warning fw-bold"><i class="bi bi-star-fill"></i> 4.7</small>
+                        </div>
+                        <h5 class="fw-bold">PitStop Moto Care</h5>
+                        <p class="small text-muted mb-2"><i class="bi bi-geo-alt-fill text-danger"></i> Jl. Majapahit No. 88, Semarang (3.1 KM)</p>
+                        <p class="small mb-3">Servis Injeksi & CVT • Estimasi Paket Lengkap: <strong>Rp 110.000</strong></p>
+                        <button class="btn btn-primary-custom w-100 mt-auto" onclick="pilihBengkel('PitStop Moto Care')">
+                            Booking Jadwal
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Riwayat Servis & Pengeluaran -->
+        <section id="riwayat" class="mb-5">
+            <div class="card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <h4 class="fw-bold mb-0">Buku Servis Digital & Riwayat Biaya</h4>
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalTambahRiwayat">
+                        <i class="bi bi-plus-lg me-1"></i>Catat Servis Manual
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Bengkel</th>
+                                <th>Jenis Perawatan</th>
+                                <th>Odometer</th>
+                                <th>Biaya</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelRiwayat">
+                            <!-- Data diisi otomatis lewat JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <small>&copy; 2026 ServisKu - Solusi Perawatan Motor Otomatis. Dibuat untuk Proyek Technopreneurship.</small>
+    </footer>
+
+    <!-- MODAL 1: Update KM -->
+    <div class="modal fade" id="modalUpdateKm" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Update Odometer Motor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <label class="form-label">Masukkan Angka KM Terbaru di Speedometer:</label>
+                    <input type="number" id="inputKmBaru" class="form-control form-control-lg" placeholder="Contoh: 12600">
+                    <small class="text-muted">Sistem akan otomatis menghitung ulang jadwal ganti oli & servis Anda.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary-custom" onclick="simpanKmBaru()">Simpan & Hitung</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: Edit Profil Motor -->
+    <div class="modal fade" id="modalEditMotor" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Edit Data Motor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tipe / Merk Motor</label>
+                        <input type="text" id="inputNamaMotor" class="form-control" value="Honda Vario 160">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nomor Polisi & Tahun</label>
+                        <input type="text" id="inputPlatMotor" class="form-control" value="H 4321 XY • Tahun 2023">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary-custom" onclick="simpanProfilMotor()">Simpan Perubahan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: Booking Bengkel -->
+    <div class="modal fade" id="modalBooking" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Form Booking Servis</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Bengkel Tujuan</label>
+                        <input type="text" id="bookingNamaBengkel" class="form-control bg-light" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Pilih Layanan</label>
+                        <select id="bookingLayanan" class="form-select">
+                            <option value="Ganti Oli Mesin">Ganti Oli Mesin</option>
+                            <option value="Servis Rutin + Ganti Oli">Servis Rutin + Ganti Oli</option>
+                            <option value="Servis CVT / Ganti V-Belt">Servis CVT / Ganti V-Belt</option>
+                            <option value="Cek Rem & Kelistrikan">Cek Rem & Kelistrikan</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tanggal & Jam Kedatangan</label>
+                        <input type="datetime-local" id="bookingWaktu" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success w-100" onclick="kirimBookingWA()">
+                        <i class="bi bi-whatsapp me-2"></i>Konfirmasi Booking via WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: Tambah Riwayat Servis -->
+    <div class="modal fade" id="modalTambahRiwayat" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Catat Riwayat Servis Baru</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label">Nama Bengkel</label>
+                        <input type="text" id="riwayatBengkel" class="form-control" placeholder="Contoh: Bengkel Maju Jaya">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Jenis Servis</label>
+                        <input type="text" id="riwayatJenis" class="form-control" placeholder="Contoh: Ganti Oli + Kampas Rem">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Odometer Saat Servis (KM)</label>
+                        <input type="number" id="riwayatKm" class="form-control" placeholder="12500">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Total Biaya (Rp)</label>
+                        <input type="number" id="riwayatBiaya" class="form-control" placeholder="85000">
+                    </div>
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" id="resetOliCheck" checked>
+                        <label class="form-check-label small" for="resetOliCheck">
+                            Reset hitungan pengingat ganti oli mulai dari KM ini
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary-custom w-100" onclick="tambahRiwayat()">Simpan ke Buku Servis</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Logic Aplikasi -->
+    <script>
+        let dataMotor = JSON.parse(localStorage.getItem('servisku_motor')) || {
+            nama: 'Honda Vario 160',
+            plat: 'H 4321 XY • Tahun 2023',
+            kmSaatIni: 12450,
+            kmServisOliTerakhir: 10500,
+            kmServisRutinTerakhir: 10500
+        };
+
+        let riwayatServis = JSON.parse(localStorage.getItem('servisku_riwayat')) || [{
+            tanggal: '15 Okt 2026',
+            bengkel: 'Bengkel Maju Jaya Motor',
+            jenis: 'Ganti Oli Mesin + Oli Gardan',
+            km: 10500,
+            biaya: 75000
+        }, {
+            tanggal: '10 Agu 2026',
+            bengkel: 'Garage 24 Express Service',
+            jenis: 'Servis Injeksi & Ganti Oli',
+            km: 8500,
+            biaya: 110000
+        }];
+
+        function simpanKeStorage() {
+            localStorage.setItem('servisku_motor', JSON.stringify(dataMotor));
+        }
+
+        function renderDashboard() {
+            document.getElementById('displayNamaMotor').innerText = dataMotor.nama;
+            document.getElementById('displayPlat').innerText = dataMotor.plat;
+            document.getElementById('displayKmSaatIni').innerText = dataMotor.kmSaatIni.toLocaleString('id-ID');
+            document.getElementById('displayKmTerakhir').innerText = dataMotor.kmServisOliTerakhir.toLocaleString('id-ID') + ' KM';
+
+            // Hitung Interval Oli (Setiap 2.000 KM)
+            const targetOli = dataMotor.kmServisOliTerakhir + 2000;
+            const jarakTempuhOli = dataMotor.kmSaatIni - dataMotor.kmServisOliTerakhir;
+            const sisaOli = targetOli - dataMotor.kmSaatIni;
+            let persenOli = Math.min(100, Math.max(0, (jarakTempuhOli / 2000) * 100));
+
+            document.getElementById('displayTargetOli').innerText = targetOli.toLocaleString('id-ID') + ' KM';
+
+            const progressOli = document.getElementById('progressOli');
+            const badgeOli = document.getElementById('badgeOli');
+            const textSisaOli = document.getElementById('textSisaOli');
+            const alertRekomendasi = document.getElementById('alertRekomendasi');
+
+            progressOli.style.width = persenOli + '%';
+
+            if (sisaOli <= 0) {
+                textSisaOli.innerText = `Terlambat ${Math.abs(sisaOli).toLocaleString('id-ID')} KM! Segera ganti oli.`;
+                badgeOli.className = 'badge bg-danger status-badge';
+                badgeOli.innerText = 'Wajib Ganti Oli!';
+                progressOli.className = 'progress-bar bg-danger';
+                alertRekomendasi.className = 'alert alert-danger mt-2 mb-0 d-flex align-items-center';
+                alertRekomendasi.innerHTML = `<i class="bi bi-exclamation-octagon-fill fs-4 me-3"></i><div><strong>Peringatan Kritis:</strong> Anda sudah melewati batas ganti oli! Risiko keausan komponen mesin meningkat. Segera booking bengkel sekarang.</div>`;
+            } else if (sisaOli <= 300) {
+                textSisaOli.innerText = `Sisa jarak tempuh: ${sisaOli.toLocaleString('id-ID')} KM lagi`;
+                badgeOli.className = 'badge bg-warning text-dark status-badge';
+                badgeOli.innerText = 'Segera Ganti';
+                progressOli.className = 'progress-bar bg-warning';
+                alertRekomendasi.className = 'alert alert-warning mt-2 mb-0 d-flex align-items-center';
+                alertRekomendasi.innerHTML = `<i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i><div><strong>Pengingat Sistem:</strong> Jarak tempuh motor mendekati jadwal ganti oli (${sisaOli} KM lagi). Amankan jadwal servis Anda!</div>`;
+            } else {
+                textSisaOli.innerText = `Sisa jarak tempuh: ${sisaOli.toLocaleString('id-ID')} KM lagi`;
+                badgeOli.className = 'badge bg-success status-badge';
+                badgeOli.innerText = 'Kondisi Aman';
+                progressOli.className = 'progress-bar bg-success';
+                alertRekomendasi.className = 'alert alert-success mt-2 mb-0 d-flex align-items-center';
+                alertRekomendasi.innerHTML = `<i class="bi bi-check-circle-fill fs-4 me-3"></i><div><strong>Performa Terjaga:</strong> Kondisi pelumas dan jadwal servis motor Anda masih dalam batas aman.</div>`;
+            }
+
+            // Hitung Interval Servis Rutin (Setiap 4.000 KM)
+            const targetServis = dataMotor.kmServisRutinTerakhir + 4000;
+            const jarakTempuhServis = dataMotor.kmSaatIni - dataMotor.kmServisRutinTerakhir;
+            const sisaServis = targetServis - dataMotor.kmSaatIni;
+            let persenServis = Math.min(100, Math.max(0, (jarakTempuhServis / 4000) * 100));
+
+            document.getElementById('progressServis').style.width = persenServis + '%';
+            if (sisaServis <= 0) {
+                document.getElementById('textSisaServis').innerText = `Terlambat ${Math.abs(sisaServis).toLocaleString('id-ID')} KM!`;
+                document.getElementById('badgeServis').className = 'badge bg-danger status-badge';
+                document.getElementById('badgeServis').innerText = 'Wajib Servis';
+                document.getElementById('progressServis').className = 'progress-bar bg-danger';
+            } else {
+                document.getElementById('textSisaServis').innerText = `Sisa jarak tempuh: ${sisaServis.toLocaleString('id-ID')} KM lagi`;
+                document.getElementById('badgeServis').className = 'badge bg-success status-badge';
+                document.getElementById('badgeServis').innerText = 'Kondisi Aman';
+                document.getElementById('progressServis').className = 'progress-bar bg-success';
+            }
+
+            renderRiwayat();
+        }
+
+        function renderRiwayat() {
+            const tbody = document.getElementById('tabelRiwayat');
+            tbody.innerHTML = '';
+            riwayatServis.forEach(item => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.tanggal}</td>
+                        <td class="fw-semibold">${item.bengkel}</td>
+                        <td>${item.jenis}</td>
+                        <td>${item.km.toLocaleString('id-ID')} KM</td>
+                        <td class="text-success fw-bold">Rp ${item.biaya.toLocaleString('id-ID')}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Fungsi Reset Baru
+        function resetOdometerNol() {
+            if (confirm('Reset Odometer dan semua hitungan servis kembali ke 0 KM?')) {
+                dataMotor.kmSaatIni = 0;
+                dataMotor.kmServisOliTerakhir = 0;
+                dataMotor.kmServisRutinTerakhir = 0;
+                simpanKeStorage();
+                renderDashboard();
+            }
+        }
+
+        function resetIntervalOli() {
+            if (confirm(`Konfirmasi sudah ganti oli pada ${dataMotor.kmSaatIni.toLocaleString('id-ID')} KM? Pengingat ganti oli akan dihitung ulang +2.000 KM dari sekarang.`)) {
+                dataMotor.kmServisOliTerakhir = dataMotor.kmSaatIni;
+                simpanKeStorage();
+                renderDashboard();
+            }
+        }
+
+        function resetIntervalServis() {
+            if (confirm(`Konfirmasi sudah servis rutin pada ${dataMotor.kmSaatIni.toLocaleString('id-ID')} KM? Pengingat servis akan dihitung ulang +4.000 KM dari sekarang.`)) {
+                dataMotor.kmServisRutinTerakhir = dataMotor.kmSaatIni;
+                simpanKeStorage();
+                renderDashboard();
+            }
+        }
+
+        function resetSemuaPengingat() {
+            if (confirm(`Reset hitungan pengingat Oli & Servis Rutin mulai dari odometer saat ini (${dataMotor.kmSaatIni.toLocaleString('id-ID')} KM)?`)) {
+                dataMotor.kmServisOliTerakhir = dataMotor.kmSaatIni;
+                dataMotor.kmServisRutinTerakhir = dataMotor.kmSaatIni;
+                simpanKeStorage();
+                renderDashboard();
+            }
+        }
+
+        function simpanKmBaru() {
+            const kmBaru = parseInt(document.getElementById('inputKmBaru').value);
+            if (isNaN(kmBaru) || kmBaru < dataMotor.kmSaatIni) {
+                alert('Masukkan angka KM yang valid (tidak boleh lebih kecil dari KM saat ini)!');
+                return;
+            }
+            dataMotor.kmSaatIni = kmBaru;
+            simpanKeStorage();
+            renderDashboard();
+            document.getElementById('inputKmBaru').value = '';
+            bootstrap.Modal.getInstance(document.getElementById('modalUpdateKm')).hide();
+        }
+
+        function simpanProfilMotor() {
+            dataMotor.nama = document.getElementById('inputNamaMotor').value;
+            dataMotor.plat = document.getElementById('inputPlatMotor').value;
+            simpanKeStorage();
+            renderDashboard();
+            bootstrap.Modal.getInstance(document.getElementById('modalEditMotor')).hide();
+        }
+
+        function pilihBengkel(namaBengkel) {
+            document.getElementById('bookingNamaBengkel').value = namaBengkel;
+            new bootstrap.Modal(document.getElementById('modalBooking')).show();
+        }
+
+        function kirimBookingWA() {
+            const bengkel = document.getElementById('bookingNamaBengkel').value;
+            const layanan = document.getElementById('bookingLayanan').value;
+            const waktu = document.getElementById('bookingWaktu').value;
+
+            if (!waktu) {
+                alert('Silakan pilih tanggal dan jam kedatangan terlebih dahulu.');
+                return;
+            }
+
+            const pesan = `Halo *${bengkel}*, saya ingin booking servis via aplikasi *ServisKu*:%0A%0A• Motor: ${dataMotor.nama} (${dataMotor.plat})%0A• KM Saat Ini: ${dataMotor.kmSaatIni} KM%0A• Layanan: ${layanan}%0A• Jadwal: ${waktu.replace('T', ' pukul ')}%0A%0AMohon konfirmasi ketersediaan slot. Terima kasih!`;
+
+            window.open(`https://wa.me/6281234567890?text=${pesan}`, '_blank');
+            bootstrap.Modal.getInstance(document.getElementById('modalBooking')).hide();
+        }
+
+        function tambahRiwayat() {
+            const bengkel = document.getElementById('riwayatBengkel').value;
+            const jenis = document.getElementById('riwayatJenis').value;
+            const km = parseInt(document.getElementById('riwayatKm').value);
+            const biaya = parseInt(document.getElementById('riwayatBiaya').value);
+            const resetOli = document.getElementById('resetOliCheck').checked;
+
+            if (!bengkel || !jenis || isNaN(km) || isNaN(biaya)) {
+                alert('Harap lengkapi semua kolom!');
+                return;
+            }
+
+            const tglSekarang = new Date().toLocaleDateString('id-ID', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
+            riwayatServis.unshift({
+                tanggal: tglSekarang,
+                bengkel,
+                jenis,
+                km,
+                biaya
+            });
+            localStorage.setItem('servisku_riwayat', JSON.stringify(riwayatServis));
+
+            if (km > dataMotor.kmSaatIni) {
+                dataMotor.kmSaatIni = km;
+            }
+            if (resetOli) {
+                dataMotor.kmServisOliTerakhir = km;
+            }
+            simpanKeStorage();
+
+            renderDashboard();
+            bootstrap.Modal.getInstance(document.getElementById('modalTambahRiwayat')).hide();
+        }
+
+        renderDashboard();
+    </script>
+</body>
+
+</html>
